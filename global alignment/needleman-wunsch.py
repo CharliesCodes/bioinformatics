@@ -43,26 +43,29 @@ def initialize_matrix(score_matrix, seq1, seq2):
 def fill_scorematrix(score_matrix, match_matrix, seq1, seq2):
     for x in range(1, len(seq1)):
         for y in range(1, len(seq2)):
-            score_matrix[y][x] = max(score_matrix[y-1][x-1] + match_matrix[y-1][x-1],
-                                    score_matrix[y-1][x] + GAP,
-                                    score_matrix[y][x-1] + GAP)
+            score_matrix[y][x] = max(
+                score_matrix[y-1][x-1] + match_matrix[y-1][x-1],
+                score_matrix[y-1][x] + GAP,
+                score_matrix[y][x-1] + GAP
+                )
     return score_matrix
 
 
 def traceback(score_matrix, match_matrix, seq1, seq2):
-    seq1_new, seq2_new= [], []
+    seq1_new, seq2_new = [], []
     x = len(seq1)-1
     y = len(seq2)-1
 
-    while x > 0 and y > 0:
+    while x>0 and y>0:
         # dia
-        if (x>0 and y>0 and score_matrix[y][x] == score_matrix[y-1][x-1] + match_matrix[y-1][x-1]):
+        if (x>0 and y>0 and score_matrix[y][x] == (score_matrix[y-1][x-1] +
+                                                   match_matrix[y-1][x-1])):
             seq1_new.append(seq1[x-1])
             seq2_new.append(seq2[y-1])
             x -= 1
             y -= 1
         # up
-        elif(y> 0 and score_matrix[y][x] == score_matrix[y-1][x] + GAP):
+        elif(y>0 and score_matrix[y][x] == score_matrix[y-1][x] + GAP):
             seq1_new.append("_")
             seq2_new.append(seq2[y-1])
             y += -1
