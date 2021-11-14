@@ -11,7 +11,7 @@ Needleman-Wunsch Algorithm
 
 
 This module uses dynamic programming to finding the optimal
-alignment of two sequences/ strings.
+alignment of two sequences/ strings of similar length.
 """
 # =============================================================================
 
