@@ -10,7 +10,7 @@
 Smith-Waterman Algorithm
 
 
-This module uses dynamic programming to finding the optimal
+This module uses dynamic programming to find the optimal
 alignment of two sequences/ strings of different lengths.
 Its the optimized version of the algorithm.
 """
