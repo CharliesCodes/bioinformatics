@@ -3,15 +3,15 @@
 # Created By  : Dominique Zeise
 # GitHub      : https://github.com/CharliesCodes
 # Created Date: 2021/11/03
-# Version     : 1.0
+# Version     : 2.0
 # © Copyright : 2021 Dominique Zeise
 # =============================================================================
 """
-Smith-Waterman Algorithm
+Needleman-Wunsch Algorithm
 
 
 This module uses dynamic programming to find the optimal
-alignment of two sequences/ strings of different lengths.
+alignment of two sequences/ strings of similar length.
 Its the optimized version of the algorithm.
 """
 # =============================================================================
@@ -21,6 +21,14 @@ import numpy as np
 MATCH = 1
 MISMATCH = -1
 GAP = -2
+
+
+def initialize_matrix(score_matrix, seq1, seq2):
+    for x in range(len(seq1)):
+        score_matrix[0][x] = x * GAP
+    for y in range(len(seq2)):
+        score_matrix[y][0] = y * GAP
+    return score_matrix
 
 
 def fill_matches(score_matrix, seq1, seq2):
@@ -34,7 +42,6 @@ def recalculate_scorematrix(score_matrix, seq1, seq2):
     for y in range(1, len(seq2)):
         for x in range(1, len(seq1)):
             score_matrix[y][x] = max(
-                0,
                 score_matrix[y-1][x-1] + score_matrix[y][x],
                 score_matrix[y-1][x] + GAP,
                 score_matrix[y][x-1] + GAP
@@ -42,24 +49,17 @@ def recalculate_scorematrix(score_matrix, seq1, seq2):
     return score_matrix
 
 
-def find_max_coordinates(score_matrix):
-    result = np.where(score_matrix == np.amax(score_matrix))
-    max_coords = (result[0][0].item(), result[1][0].item())
-    return max_coords
-
-
-def traceback(score_matrix, seq1, seq2, max_coords):
+def traceback(score_matrix, seq1, seq2):
     seq1_new, seq2_new = [], []
-    (y, x) = max_coords
-    seq1_new.append(seq1[x])
-    seq2_new.append(seq2[y])
+    x = len(seq1)-1
+    y = len(seq2)-1
 
-    while score_matrix[y][x] != 0:
+    while x>0 and y>0:
         dia = score_matrix[y-1][x-1]
         up = score_matrix[y-1][x]
         left = score_matrix[y][x-1]
         max_points = max(dia, up, left)
-        score_matrix[y][x] = 0
+
         # dia
         if (x > 0 and y > 0 and dia == max_points):
             seq1_new.append(seq1[x-1])
@@ -91,21 +91,31 @@ def output(seq1_new, seq2_new):
     print(seq1_output)
     print(alignment_output)
     print(seq2_output)
+    return alignment_output
 
 
-def main():
-    seq1 = ",ACGACGACTTACTT"
-    seq2 = ",CGTCT"
+def calc_similarity(alignment_output):
+    abs_count = alignment_output.count("|")
+    rel_count = abs_count/len(alignment_output)
+    return (abs_count, rel_count)
+
+
+
+def main(seq1='', seq2='',):
+    # change sequences below for your needs!
+    if not (seq1 or seq2):
+        seq1 = ",AATGC,"
+        seq2 = ",ATGC,"
 
     score_matrix = np.zeros((len(seq2)) * (len(seq1)),
                             dtype="int16").reshape((len(seq2), len(seq1)))
 
+    score_matrix = initialize_matrix(score_matrix, seq1, seq2)
     score_matrix = fill_matches(score_matrix, seq1, seq2)
     score_matrix = recalculate_scorematrix(score_matrix, seq1, seq2)
-    max_coords = find_max_coordinates(score_matrix)
-    seq1_new, seq2_new = traceback(score_matrix, seq1, seq2, max_coords)
-    del score_matrix
-    output(seq1_new, seq2_new)
+    seq1_new, seq2_new = traceback(score_matrix, seq1, seq2)
+    alignment_output = output(seq1_new, seq2_new)
+    sim_tup = calc_similarity(alignment_output)
 
 
 if __name__ == '__main__':
