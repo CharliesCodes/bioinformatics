@@ -44,7 +44,7 @@ def recalculate_scorematrix(score_matrix, seq1, seq2):
 
 def find_max_coordinates(score_matrix):
     result = np.where(score_matrix == np.amax(score_matrix))
-    max_coords = (result[0][0].item(), result[1][0].item())
+    max_coords = (result[0][0], result[1][0])
     return max_coords
 
 
@@ -100,16 +100,14 @@ def calc_similarity(alignment_output):
     return (abs_count, rel_count)
 
 
-def main(seq1='', seq2='',):
+def main(seq1='', seq2=''):
     # change sequences below for your needs!
     if not (seq1 or seq2):
-        seq1 = ",ATGCAGATCGGATCGA,"
-        seq2 = ",ATCG,"
+        seq1 = ",TACGA"
+        seq2 = ",CG"
 
     score_matrix = np.zeros((len(seq2)) * (len(seq1)),
                             dtype="int16").reshape((len(seq2), len(seq1)))
-    print(score_matrix)
-
     score_matrix = fill_matches(score_matrix, seq1, seq2)
     score_matrix = recalculate_scorematrix(score_matrix, seq1, seq2)
     max_coords = find_max_coordinates(score_matrix)
@@ -117,8 +115,6 @@ def main(seq1='', seq2='',):
     del score_matrix
     alignment_output = output(seq1_new, seq2_new)
     sim_tup = calc_similarity(alignment_output)
-    return sim_tup, seq1_new
-
 
 
 if __name__ == '__main__':

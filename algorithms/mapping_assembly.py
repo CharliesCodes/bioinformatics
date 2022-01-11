@@ -14,9 +14,9 @@ sequenceparts.
 Dependencies: Local Alignment Module'''
 # =============================================================================
 try:
-    import smith_waterman as sw
+    import free_shift_alignment as fsa
 except ImportError:
-    print("Smith-Waterman Algorithm not found!\nPlease copy file 'smith_waterman.py' into the same directory!\nVisit my GitHub page to download it.")
+    print("Free-Shift Alignment not found!\nPlease copy file 'free_shift_alignment.py' into the same directory!\nVisit my GitHub page to download it.")
 
 import random
 
@@ -26,7 +26,7 @@ def generate_origin(origin_len=100):
     return origin, origin_len
 
 
-def cut_origin_to_seqparts(origin, minl, maxl, sets=10):
+def cut_origin_to_seqparts(origin, minl, maxl, sets=20):
     """This func generates random sets of sequenceparts from origin
     and wraps them into one big, sorted list
 
@@ -37,19 +37,20 @@ def cut_origin_to_seqparts(origin, minl, maxl, sets=10):
         sets (int, optional): number of sets from original. Defaults to 10.
 
     Returns:
-        [list]: list of substrings with random parts from origin
+        [list]: len decreasing sorted  list of substrings with random parts from origin
     """
     seqparts = []
     for _ in range(sets):
         x = 0
         while x < len(origin):
             rand = random.randint(minl, maxl)
-            seqparts.append(origin[x:x+rand])
             if (len(origin)-x) <= minl:
                 seqparts.append(origin[x::])
+            else:
+                seqparts.append(origin[x:x+rand])
             x += rand
+    seqparts.sort(key=len)
     return seqparts
-
 
 
 def get_unique_seqparts(seqparts):
@@ -64,37 +65,45 @@ def get_unique_seqparts(seqparts):
     seqparts = list(set(seqparts))
     seqparts.sort(key=len, reverse=True)
     unique_seqparts = []
+    # remove all sequences that are part of any other sequence
     for substring in seqparts:
         if not any(substring in string for string in unique_seqparts):
             unique_seqparts.append(substring)
     return unique_seqparts
 
 
-def test(seqparts):
-    #! SOME CODESMELL is here
-    seqparts = ["," + seq + "," for seq in seqparts]
-    main_seq = seqparts[0]
-    seqparts.pop(0)
-    while seqparts:
+def mapping(seqparts, minl, origin_len):
+    seqparts = ["," + seq for seq in seqparts]
+    # set longest (first) list element as main sequence and remove it from list
+    main_seq = seqparts.pop(0)
+    while seqparts and len(main_seq) <= origin_len:
         fragments = []
         for seq2 in seqparts:
-            sim_tup, seq1_new = sw.main(main_seq, seq2)
-            fragments.append((sim_tup[0], seq1_new))
-        sorted_frags = sorted(fragments, key=lambda tup: tup[0], reverse=True)
-        main_seq = sorted_frags[0][1]
-        print(sorted_frags)
+            # use imported smith-waterman algorithm without output function
+            sim_tup, main_seq_new = fsa.main(main_seq, seq2, True)
+            if 0.9*len(seq2) >= sim_tup[0] > 0.2*len(seq2):
+                fragments.append((sim_tup[0], main_seq_new))
+        if fragments:
+            sorted_frags = sorted(fragments, key=lambda tup: tup[0], reverse=True)
+            main_seq = sorted_frags[0][1]
+            main_seq = "," + main_seq
+        seqparts.pop(0)
+    return main_seq
 
 
 def main():
     origin, origin_len = generate_origin()
-    minl = round(0.01*origin_len)
-    maxl = round(0.10*origin_len)
-    seqparts = cut_origin_to_seqparts(origin, minl, maxl, sets=5)
+    minl = round(0.10*origin_len)
+    maxl = round(0.20*origin_len)
+    seqparts = cut_origin_to_seqparts(origin, minl, maxl, sets=20)
     seqparts = get_unique_seqparts(seqparts)
-    test(seqparts)
-
-
-
+    assembly_sequence = mapping(seqparts, minl, origin_len)
+    # global alignment here:
+    origin = "," + origin +","
+    assembly_sequence = assembly_sequence + ","
+    print("Ursprungssequenz")
+    print("Assemblierte Sequenz\n")
+    fsa.main(origin, assembly_sequence)
 
 
 if __name__ == '__main__':

@@ -19,8 +19,8 @@ It ignores overlaps (prefixes/ suffixes).
 import numpy as np
 
 MATCH = 1
-MISMATCH = -1
-GAP = -2
+MISMATCH = -10
+GAP = -10
 
 
 def fill_matches(score_matrix, seq1, seq2):
@@ -37,7 +37,7 @@ def recalculate_scorematrix(score_matrix, seq1, seq2):
                 score_matrix[y-1][x-1] + score_matrix[y][x],
                 score_matrix[y-1][x] + GAP,
                 score_matrix[y][x-1] + GAP
-                )
+            )
     return score_matrix
 
 
@@ -53,28 +53,29 @@ def get_max_from_border(score_matrix):
         result = (np.argmax(last_column), x)
     else:
         result = (y, np.argmax(last_row))
-
     return result
 
 
-def traceback(score_matrix, seq1, seq2, start_coordinates):
+def traceback(score_matrix, seq1, seq2, start_coordinates, assembly):
     seq1_new, seq2_new = [], []
     y, x = start_coordinates[0], start_coordinates[1]
+    seq1_new.append(seq1[x])
+    seq2_new.append(seq2[y])
 
-    while x>0 and y>0:
+    while x > 0 and y > 0:
         dia = score_matrix[y-1][x-1]
         up = score_matrix[y-1][x]
         left = score_matrix[y][x-1]
         max_points = max(dia, up, left)
 
         # dia
-        if (x > 0 and y > 0 and dia == max_points):
+        if dia == max_points:
             seq1_new.append(seq1[x-1])
             seq2_new.append(seq2[y-1])
             x -= 1
             y -= 1
         # up
-        elif(y > 0 and up == max_points):
+        elif up == max_points:
             seq1_new.append("_")
             seq2_new.append(seq2[y-1])
             y += -1
@@ -83,21 +84,55 @@ def traceback(score_matrix, seq1, seq2, start_coordinates):
             seq2_new.append("_")
             seq1_new.append(seq1[x-1])
             x += -1
+
+    # left border
+    while y > 0:
+        seq1_new.append("_")
+        seq2_new.append(seq2[y-1])
+        y += -1
+    # top border
+    while x > 0:
+        seq2_new.append("_")
+        seq1_new.append(seq1[x-1])
+        x += -1
     return seq1_new, seq2_new
+
+
+def add_overlap(seq1, seq2, seq1_new, seq2_new, max_border_coords):
+    y, x = max_border_coords
+    seq1_new = ''.join(seq1_new)[::-1]
+    seq2_new = ''.join(seq2_new)[::-1]
+    # add suffix overlap
+    seq1_new = seq1_new + seq1[x+1:] + "_"*abs(len(seq2)-1 - y)
+    seq2_new = seq2_new + seq2[y+1:] + "_"*abs(len(seq1)-1 - x)
+    return seq1_new, seq2_new
+
+
+def merge_sequences(seq1_new, seq2_new):
+    """used for assembly merges both sequences to one at overlap and
+
+    Args:
+        seq1_new (str): main sequence
+        seq2_ne (str): seq to append to
+
+    Returns:
+        seq1_new (str): merged main sequence
+    """
+    seq1_new = list(seq1_new)
+    for x in range(len(seq1_new)):
+        if seq1_new[x] == "_":
+            seq1_new[x] = seq2_new[x]
+        if seq1_new[x] == ",":
+            del seq1_new[x]
+    seq1_new = ''.join(seq1_new)
+    return seq1_new
 
 
 def output(seq1_new, seq2_new):
     alignment = []
-
     for n1, n2 in zip(seq1_new, seq2_new):
         alignment.append("|") if n1 == n2 else alignment.append("*")
-    seq1_output = ''.join(seq1_new[:-1])[::-1]
-    seq2_output = ''.join(seq2_new[:-1])[::-1]
-    alignment_output = ''.join(alignment[:-1])[::-1]
-
-    print(seq1_output)
-    print(alignment_output)
-    print(seq2_output)
+    alignment_output = ''.join(alignment)
     return alignment_output
 
 
@@ -107,22 +142,36 @@ def calc_similarity(alignment_output):
     return (abs_count, rel_count)
 
 
-
-def main(seq1='', seq2='',):
+def main(seq1='', seq2='', assembly=False):
     # change sequences below for your needs!
     if not (seq1 or seq2):
-        seq1 = ",ATTAC,"
-        seq2 = ",ATT,"
-
+        seq1 = ",ATTA"
+        seq2 = ",ATT"
     score_matrix = np.zeros((len(seq2)) * (len(seq1)),
                             dtype="int16").reshape((len(seq2), len(seq1)))
 
     score_matrix = fill_matches(score_matrix, seq1, seq2)
     score_matrix = recalculate_scorematrix(score_matrix, seq1, seq2)
     max_border_coords = get_max_from_border(score_matrix)
-    seq1_new, seq2_new = traceback(score_matrix, seq1, seq2, max_border_coords)
+    seq1_new, seq2_new = traceback(
+        score_matrix, seq1, seq2, max_border_coords, assembly)
+    seq1_new, seq2_new = add_overlap(
+        seq1, seq2, seq1_new, seq2_new, max_border_coords)
+    # remove Commas
+    seq1_new = seq1_new.replace(',', '')
+    seq2_new = seq2_new.replace(',', '')
+
     alignment_output = output(seq1_new, seq2_new)
     sim_tup = calc_similarity(alignment_output)
+
+    if assembly:
+        seq1_new = merge_sequences(seq1_new, seq2_new)
+        return sim_tup, seq1_new
+    else:
+        print(seq1_new)
+        print(alignment_output)
+        print(seq2_new)
+        print(f"\nAehnlichkeit: {round(sim_tup[1]*100, 2)}%")
 
 
 if __name__ == '__main__':
