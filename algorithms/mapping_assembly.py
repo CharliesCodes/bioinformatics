@@ -9,16 +9,18 @@
 '''Mapping Assembly
 
 
-This module uses dynamic programming to restore an origin-sequence from
-sequenceparts.
-Dependencies: Local Alignment Module'''
+This module uses dynamic programming to restore an
+origin-sequence from sequenceparts.
+
+Dependencies: Free-Shift Alignment Module'''
 # =============================================================================
+
+import random
+
 try:
     import free_shift_alignment as fsa
 except ImportError:
     print("Free-Shift Alignment not found!\nPlease copy file 'free_shift_alignment.py' into the same directory!\nVisit my GitHub page to download it.")
-
-import random
 
 
 def generate_origin(origin_len=100):
@@ -26,7 +28,7 @@ def generate_origin(origin_len=100):
     return origin, origin_len
 
 
-def cut_origin_to_seqparts(origin, minl, maxl, sets=20):
+def cut_origin_to_seqparts(origin, minl, maxl, set_num=20):
     """This func generates random sets of sequenceparts from origin
     and wraps them into one big, sorted list
 
@@ -34,13 +36,13 @@ def cut_origin_to_seqparts(origin, minl, maxl, sets=20):
         origin (str): original sequence to cut
         minl (int): min len for sequenceparts
         maxl (int): max len for sequenceparts
-        sets (int, optional): number of sets from original. Defaults to 10.
+        set_num (int, optional): number of sets from original. Defaults to 10.
 
     Returns:
         [list]: len decreasing sorted  list of substrings with random parts from origin
     """
     seqparts = []
-    for _ in range(sets):
+    for _ in range(set_num):
         x = 0
         while x < len(origin):
             rand = random.randint(minl, maxl)
@@ -49,6 +51,7 @@ def cut_origin_to_seqparts(origin, minl, maxl, sets=20):
             else:
                 seqparts.append(origin[x:x+rand])
             x += rand
+    # sorting not needed - just for the sake of clarity
     seqparts.sort(key=len)
     return seqparts
 
@@ -72,7 +75,24 @@ def get_unique_seqparts(seqparts):
     return unique_seqparts
 
 
-def mapping(seqparts, minl, origin_len):
+def mapping(seqparts, origin_len):
+    """assembles the best fitting sequence into
+    one big sequence. Requires Free-Shift-Alignment
+    to find best fit. Starting with biggest Sequencepart,
+    it itterates over all other parts (size decreasing order).
+    Stores scores for fit in tuple and merges highest fitting
+    sequence. Repeating the procedure untill seqparts list is
+    empty or the origin_len limit is reached
+
+    Args:
+        seqparts (list): strings with random generated sequences
+        Order: decreasing length
+        origin_len (int): used as loop-breaker
+        (stop length for mapped sequences size)
+
+    Returns:
+        str: Assembled Sequence
+    """
     seqparts = ["," + seq for seq in seqparts]
     # set longest (first) list element as main sequence and remove it from list
     main_seq = seqparts.pop(0)
@@ -95,10 +115,10 @@ def main():
     origin, origin_len = generate_origin()
     minl = round(0.10*origin_len)
     maxl = round(0.20*origin_len)
-    seqparts = cut_origin_to_seqparts(origin, minl, maxl, sets=20)
+    set_num = 20
+    seqparts = cut_origin_to_seqparts(origin, minl, maxl, set_num)
     seqparts = get_unique_seqparts(seqparts)
-    assembly_sequence = mapping(seqparts, minl, origin_len)
-    # global alignment here:
+    assembly_sequence = mapping(seqparts, origin_len)
     origin = "," + origin +","
     assembly_sequence = assembly_sequence + ","
     print("Ursprungssequenz")

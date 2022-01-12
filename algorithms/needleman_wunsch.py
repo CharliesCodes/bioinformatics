@@ -23,24 +23,64 @@ MISMATCH = -1
 GAP = -2
 
 
-def initialize_matrix(score_matrix, seq1, seq2):
-    for x in range(len(seq1)):
+def initialize_matrix(score_matrix, ls1, ls2):
+    """fillst first row and column with
+    given penalties
+
+    Args:
+        score_matrix (numpy matrix): 0 filled
+        ls1 (int): len first sequence to alignt
+        ls2 (int): len second sequence to alignt
+
+    Returns:
+        numpy matrix: np matrix with initialized
+        first row and column
+    """
+    for x in range(ls1):
         score_matrix[0][x] = x * GAP
-    for y in range(len(seq2)):
+    for y in range(ls2):
         score_matrix[y][0] = y * GAP
     return score_matrix
 
 
-def fill_matches(score_matrix, seq1, seq2):
-    for y in range(1, len(seq2)):
-        for x in range(1, len(seq1)):
+def fill_matches(score_matrix, ls1, ls2, seq1, seq2):
+    """creates a substitution matrix inside
+    initialized matrix.
+    Starts with second row and column.
+
+    Args:
+        score_matrix (np matrix): initialized matrix
+        ls1 (int): len first sequence to alignt
+        ls2 (int): len second sequence to alignt
+        seq1 (str): first sequence to alignt
+        seq2 (str): second sequence to alignt
+
+    Returns:
+        numpy matrix: substitution matrix inside
+    initialized matrix
+    """
+    for y in range(1, ls2):
+        for x in range(1, ls1):
             score_matrix[y][x] = MATCH if seq1[x] == seq2[y] else MISMATCH
     return score_matrix
 
 
-def recalculate_scorematrix(score_matrix, seq1, seq2):
-    for y in range(1, len(seq2)):
-        for x in range(1, len(seq1)):
+def recalculate_scorematrix(score_matrix, ls1, ls2):
+    """creates a scorematrix with help of the
+    substitution matrix and rewards/ penalties
+
+    Args:
+        score_matrix (np matrix): substitution matrix inside
+        initialized matrix
+        ls1 (int): len first sequence to alignt
+        ls2 (int): len second sequence to alignt
+
+    Returns:
+        numpy matrix: scorematrix
+    """
+    # start at second row and column -> skips initialized cells
+    for y in range(1, ls2):
+        for x in range(1, ls1):
             score_matrix[y][x] = max(
                 score_matrix[y-1][x-1] + score_matrix[y][x],
                 score_matrix[y-1][x] + GAP,
@@ -49,10 +89,25 @@ def recalculate_scorematrix(score_matrix, seq1, seq2):
     return score_matrix
 
 
-def traceback(score_matrix, seq1, seq2):
+def traceback(score_matrix, ls1, ls2, seq1, seq2):
+    """traceback from bottom right corner to
+    upper left corner. Finds best scoring path
+    via greedy-algorithm.
+
+    Args:
+        score_matrix numpy matrix: scorematrix
+        ls1 (int): len first sequence to alignt
+        ls2 (int): len second sequence to alignt
+        seq1 (str): first sequence to alignt
+        seq2 (str): second sequence to alignt
+
+    Returns:
+        seq1_new (str): redesigned first sequence
+        seq2_new (str): redesigned second sequence
+    """
     seq1_new, seq2_new = [], []
-    x = len(seq1)-1
-    y = len(seq2)-1
+    x = ls1-1
+    y = ls2-1
     while x>0 and y>0:
         dia = score_matrix[y-1][x-1]
         up = score_matrix[y-1][x]
@@ -89,6 +144,17 @@ def traceback(score_matrix, seq1, seq2):
 
 
 def output(seq1_new, seq2_new):
+    """generates and prints an alignment output string
+    which shows matches (|) and mismatches (*)
+
+    Args:
+        seq1_new (str): redesigned first sequence
+        seq2_new (str): redesigned second sequence
+
+    Returns:
+        str: alignment output string which
+        consists of "|" and "*" symbols
+    """
     alignment = []
     for n1, n2 in zip(seq1_new, seq2_new):
         alignment.append("|") if n1 == n2 else alignment.append("*")
@@ -103,10 +169,20 @@ def output(seq1_new, seq2_new):
 
 
 def calc_similarity(alignment_output):
+    """calculates absolute & relative match frequency
+    of the alignment by counting the Pipe symbols
+    in the alignment_output string
+
+    Args:
+        alignment_output (str): consists of "|" and "*" symbols
+        for matches and mismatches in the alignment
+
+    Returns:
+        tuple: absolute & relative match frequency
+    """
     abs_count = alignment_output.count("|")
     rel_count = abs_count/len(alignment_output)
     return (abs_count, rel_count)
-
 
 
 def main(seq1='', seq2=''):
@@ -114,17 +190,16 @@ def main(seq1='', seq2=''):
     if not (seq1 or seq2):
         seq1 = ",AATGC,"
         seq2 = ",ATGC,"
-
-    score_matrix = np.zeros((len(seq2)) * (len(seq1)),
-                            dtype="int16").reshape((len(seq2), len(seq1)))
-
-    score_matrix = initialize_matrix(score_matrix, seq1, seq2)
-    score_matrix = fill_matches(score_matrix, seq1, seq2)
-    score_matrix = recalculate_scorematrix(score_matrix, seq1, seq2)
-    seq1_new, seq2_new = traceback(score_matrix, seq1, seq2)
+    ls1 = len(seq1)
+    ls2 = len(seq2)
+    score_matrix = np.zeros(ls2 * ls1, dtype="int16").reshape((ls2, ls1))
+    score_matrix = initialize_matrix(score_matrix, ls1, ls2)
+    score_matrix = fill_matches(score_matrix, ls1, ls2, seq1, seq2)
+    score_matrix = recalculate_scorematrix(score_matrix, ls1, ls2)
+    seq1_new, seq2_new = traceback(score_matrix, ls1, ls2, seq1, seq2)
     alignment_output = output(seq1_new, seq2_new)
     sim_tup = calc_similarity(alignment_output)
-    print(f"\nAehnlichkeit: {round(sim_tup[1]*100, 2)}%")
+    print(f"\nSimilarity: {round(sim_tup[1]*100, 2)}%")
 
 
 if __name__ == '__main__':

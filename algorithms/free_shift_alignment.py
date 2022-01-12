@@ -23,16 +23,43 @@ MISMATCH = -10
 GAP = -10
 
 
-def fill_matches(score_matrix, seq1, seq2):
-    for y in range(1, len(seq2)):
-        for x in range(1, len(seq1)):
+def fill_matches(score_matrix, ls1, ls2, seq1, seq2):
+    """creates a substitution matrix.
+    Starts with second row and column.
+
+    Args:
+        score_matrix (np matrix): initialized matrix
+        ls1 (int): len first sequence to alignt
+        ls2 (int): len second sequence to alignt
+        seq1 (str): first sequence to alignt
+        seq2 (str): second sequence to alignt
+
+    Returns:
+        numpy matrix: substitution matrix inside
+    initialized matrix
+    """
+    for y in range(1, ls2):
+        for x in range(1, ls1):
             score_matrix[y][x] = MATCH if seq1[x] == seq2[y] else MISMATCH
     return score_matrix
 
 
-def recalculate_scorematrix(score_matrix, seq1, seq2):
-    for y in range(1, len(seq2)):
-        for x in range(1, len(seq1)):
+def recalculate_scorematrix(score_matrix, ls1, ls2):
+    """creates a scorematrix with help of the
+    substitution matrix and rewards/ penalties
+
+    Args:
+        score_matrix (np matrix): substitution matrix inside
+        initialized matrix
+        ls1 (int): len first sequence to alignt
+        ls2 (int): len second sequence to alignt
+
+    Returns:
+        numpy matrix: scorematrix
+    """
+    # start at second row and column -> skips initialized cells
+    for y in range(1, ls2):
+        for x in range(1, ls1):
             score_matrix[y][x] = max(
                 score_matrix[y-1][x-1] + score_matrix[y][x],
                 score_matrix[y-1][x] + GAP,
@@ -42,6 +69,16 @@ def recalculate_scorematrix(score_matrix, seq1, seq2):
 
 
 def get_max_from_border(score_matrix):
+    """find coordinates of highest score in the
+    first row and column of the matrix
+
+    Args:
+        score_matrix (numpy matrix): scorematrix
+
+    Returns:
+        tuple: (y, x) Coordinates of max score
+        returns the first occuring if score occures multiple times
+    """
     matrix_shape = score_matrix.shape
     y = matrix_shape[0]-1
     x = matrix_shape[1]-1
@@ -56,9 +93,23 @@ def get_max_from_border(score_matrix):
     return result
 
 
-def traceback(score_matrix, seq1, seq2, start_coordinates, assembly):
+def traceback(score_matrix, seq1, seq2, max_border_coords):
+    """traceback from coordinates of highest score in
+    last row or last column to upper left corner.
+    Finds best scoring path via greedy-algorithm.
+
+    Args:
+        score_matrix numpy matrix: scorematrix
+        seq1 (str): first sequence to alignt
+        seq2 (str): second sequence to alignt
+        max_border_coords (tuple): (y, x) Coordinates of max score
+
+    Returns:
+        seq1_new (str): redesigned first sequence
+        seq2_new (str): redesigned second sequence
+    """
     seq1_new, seq2_new = [], []
-    y, x = start_coordinates[0], start_coordinates[1]
+    y, x = max_border_coords[0], max_border_coords[1]
     seq1_new.append(seq1[x])
     seq2_new.append(seq2[y])
 
@@ -98,22 +149,38 @@ def traceback(score_matrix, seq1, seq2, start_coordinates, assembly):
     return seq1_new, seq2_new
 
 
-def add_overlap(seq1, seq2, seq1_new, seq2_new, max_border_coords):
+def add_overlap(ls1, ls2, seq1, seq2, seq1_new, seq2_new, max_border_coords):
+    """merges original and new sequences together and
+    appends underscore symbols at the shorter sequence as suffix
+
+    Args:
+        ls1 (int): len first sequence to alignt
+        ls2 (int): len second sequence to alignt
+        seq1 (str): first sequence to alignt
+        seq2 (str): second sequence to alignt
+        seq1_new (str): redesigned first sequence
+        seq2_new (str): redesigned second sequence
+        max_border_coords (tuple): (y, x) Coordinates of max score
+
+    Returns:
+        str: redesigned sequences with suffixes
+    """
     y, x = max_border_coords
     seq1_new = ''.join(seq1_new)[::-1]
     seq2_new = ''.join(seq2_new)[::-1]
     # add suffix overlap
-    seq1_new = seq1_new + seq1[x+1:] + "_"*abs(len(seq2)-1 - y)
-    seq2_new = seq2_new + seq2[y+1:] + "_"*abs(len(seq1)-1 - x)
+    seq1_new = seq1_new + seq1[x+1:] + "_"*abs(ls2-1 - y)
+    seq2_new = seq2_new + seq2[y+1:] + "_"*abs(ls1-1 - x)
     return seq1_new, seq2_new
 
 
 def merge_sequences(seq1_new, seq2_new):
-    """used for assembly merges both sequences to one at overlap and
+    """used for assembly only!
+    merges both sequences to one at overlap
 
     Args:
         seq1_new (str): main sequence
-        seq2_ne (str): seq to append to
+        seq2_new (str): seq to append to
 
     Returns:
         seq1_new (str): merged main sequence
@@ -129,6 +196,17 @@ def merge_sequences(seq1_new, seq2_new):
 
 
 def output(seq1_new, seq2_new):
+    """generates and prints an alignment output string
+    which shows matches (|) and mismatches (*)
+
+    Args:
+        seq1_new (str): redesigned first sequence
+        seq2_new (str): redesigned second sequence
+
+    Returns:
+        str: alignment output string which
+        consists of "|" and "*" symbols
+    """
     alignment = []
     for n1, n2 in zip(seq1_new, seq2_new):
         alignment.append("|") if n1 == n2 else alignment.append("*")
@@ -137,6 +215,17 @@ def output(seq1_new, seq2_new):
 
 
 def calc_similarity(alignment_output):
+    """calculates absolute & relative match frequency
+    of the alignment by counting the Pipe symbols
+    in the alignment_output string
+
+    Args:
+        alignment_output (str): consists of "|" and "*" symbols
+        for matches and mismatches in the alignment
+
+    Returns:
+        tuple: absolute & relative match frequency
+    """
     abs_count = alignment_output.count("|")
     rel_count = abs_count/len(alignment_output)
     return (abs_count, rel_count)
@@ -145,18 +234,18 @@ def calc_similarity(alignment_output):
 def main(seq1='', seq2='', assembly=False):
     # change sequences below for your needs!
     if not (seq1 or seq2):
-        seq1 = ",ATTA"
+        seq1 = ",ATTAC"
         seq2 = ",ATT"
-    score_matrix = np.zeros((len(seq2)) * (len(seq1)),
-                            dtype="int16").reshape((len(seq2), len(seq1)))
-
-    score_matrix = fill_matches(score_matrix, seq1, seq2)
-    score_matrix = recalculate_scorematrix(score_matrix, seq1, seq2)
+    ls1 = len(seq1)
+    ls2 = len(seq2)
+    score_matrix = np.zeros(ls2 * ls1, dtype="int16").reshape((ls2, ls1))
+    score_matrix = fill_matches(score_matrix, ls1, ls2, seq1, seq2)
+    score_matrix = recalculate_scorematrix(score_matrix, ls1, ls2)
     max_border_coords = get_max_from_border(score_matrix)
     seq1_new, seq2_new = traceback(
-        score_matrix, seq1, seq2, max_border_coords, assembly)
+        score_matrix, seq1, seq2, max_border_coords)
     seq1_new, seq2_new = add_overlap(
-        seq1, seq2, seq1_new, seq2_new, max_border_coords)
+        ls1, ls2, seq1, seq2, seq1_new, seq2_new, max_border_coords)
     # remove Commas
     seq1_new = seq1_new.replace(',', '')
     seq2_new = seq2_new.replace(',', '')
