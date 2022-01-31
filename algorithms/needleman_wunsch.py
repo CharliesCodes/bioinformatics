@@ -8,6 +8,7 @@
 # =============================================================================
 """
 Needleman-Wunsch Algorithm
+Global Alignment Algorithm
 
 
 This module uses dynamic programming to find the optimal

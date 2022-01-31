@@ -8,6 +8,7 @@
 # =============================================================================
 """
 Smith-Waterman Algorithm
+Local Alignment Algorithm
 
 
 This module uses dynamic programming to find the optimal

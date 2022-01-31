@@ -34,7 +34,7 @@ def create_seqparts():
     and wraps them into one big, sorted list
 
     Returns:
-        [list]: len decreasing sorted  list of substrings with random parts from origin
+        [list]: len decreasing sorted list of substrings with random parts from origin
     """
     seqparts = []
     for _ in range(SUBSEQ_NUM):
@@ -90,17 +90,21 @@ def mapping(seqparts):
     print("Startsequence:", main_seq)
     while seqparts and len(main_seq) <= ASSEMBLY_MAXLEN:
         fragments = []
-        for seq2 in seqparts:
+        for parts_index, seq2 in enumerate(seqparts):
             # use imported smith-waterman algorithm without output function
             sim_tup, main_seq_new = fsa.main(main_seq, seq2, True)
             if 0.9*len(seq2) >= sim_tup[0] > 0.2*len(seq2):
-                fragments.append((sim_tup[0], main_seq_new))
+                fragments.append((sim_tup[0], main_seq_new, parts_index))
         if fragments:
             sorted_frags = sorted(
                 fragments, key=lambda tup: tup[0], reverse=True)
             main_seq = sorted_frags[0][1]
             main_seq = "," + main_seq
-        seqparts.pop(0)
+        try:
+            del seqparts[sorted_frags[0][2]]
+        except:
+            print("An exception occurred! No fitting part found")
+
     return main_seq
 
 

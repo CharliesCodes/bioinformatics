@@ -98,24 +98,28 @@ def mapping(seqparts, origin_len):
     main_seq = seqparts.pop(0)
     while seqparts and len(main_seq) <= origin_len:
         fragments = []
-        for seq2 in seqparts:
+        for parts_index, seq2 in enumerate(seqparts):
             # use imported smith-waterman algorithm without output function
             sim_tup, main_seq_new = fsa.main(main_seq, seq2, True)
             if 0.9*len(seq2) >= sim_tup[0] > 0.2*len(seq2):
-                fragments.append((sim_tup[0], main_seq_new))
+                fragments.append((sim_tup[0], main_seq_new, parts_index))
         if fragments:
-            sorted_frags = sorted(fragments, key=lambda tup: tup[0], reverse=True)
+            sorted_frags = sorted(
+                fragments, key=lambda tup: tup[0], reverse=True)
             main_seq = sorted_frags[0][1]
             main_seq = "," + main_seq
-        seqparts.pop(0)
+        try:
+            del seqparts[sorted_frags[0][2]]
+        except:
+            print("An exception occurred! No fitting part found")
     return main_seq
 
 
 def main():
     origin, origin_len = generate_origin()
-    minl = round(0.10*origin_len)
+    minl = round(0.05*origin_len)
     maxl = round(0.20*origin_len)
-    set_num = 20
+    set_num = 10
     seqparts = cut_origin_to_seqparts(origin, minl, maxl, set_num)
     seqparts = get_unique_seqparts(seqparts)
     assembly_sequence = mapping(seqparts, origin_len)
