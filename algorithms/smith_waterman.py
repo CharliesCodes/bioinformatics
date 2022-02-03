@@ -121,12 +121,12 @@ def traceback(score_matrix, seq1, seq2, max_coords):
         elif(y > 0 and up == max_points):
             seq1_new.append("_")
             seq2_new.append(seq2[y-1])
-            y += -1
+            y -= 1
         # left
         else:
             seq2_new.append("_")
             seq1_new.append(seq1[x-1])
-            x += -1
+            x -= 1
     return seq1_new, seq2_new
 
 
@@ -179,7 +179,7 @@ def main(seq1='', seq2=''):
         seq2 = ",CG"
     ls1 = len(seq1)
     ls2 = len(seq2)
-    score_matrix = np.zeros(ls2 * ls1, dtype="int16").reshape(ls2, ls1)
+    score_matrix = np.zeros((ls2, ls1), dtype="int16")
     score_matrix = fill_matches(score_matrix, ls1, ls2, seq1, seq2)
     score_matrix = recalculate_scorematrix(score_matrix, ls1, ls2)
     max_coords = find_max_coordinates(score_matrix)

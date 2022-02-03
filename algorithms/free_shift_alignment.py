@@ -238,7 +238,7 @@ def main(seq1='', seq2='', assembly=False):
         seq2 = ",ATT"
     ls1 = len(seq1)
     ls2 = len(seq2)
-    score_matrix = np.zeros(ls2 * ls1, dtype="int16").reshape((ls2, ls1))
+    score_matrix = np.zeros((ls2, ls1), dtype="int16")
     score_matrix = fill_matches(score_matrix, ls1, ls2, seq1, seq2)
     score_matrix = recalculate_scorematrix(score_matrix, ls1, ls2)
     max_border_coords = get_max_from_border(score_matrix)
