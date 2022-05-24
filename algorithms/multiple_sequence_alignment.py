@@ -25,34 +25,6 @@ MISMATCH = -1
 GAP = -2
 
 
-def fill_matches(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
-    """creates a substitution matrix inside
-    initialized matrix.
-    Starts with second row and column.
-
-    Args:
-        score_matrix (np matrix): initialized matrix
-        ls1 (int): len first sequence to alignt
-        ls2 (int): len second sequence to alignt
-        ls3 (int): len third sequence to alignt
-        seq1 (str): first sequence to alignt
-        seq2 (str): second sequence to alignt
-        seq2 (str): third sequence to alignt
-
-    Returns:
-        numpy matrix: substitution matrix inside
-    initialized matrix
-    """
-    for z in range(ls3):
-        for y in range(ls2):
-            for x in range(ls1):
-                if ((seq1[x] == seq2[y]) or (seq1[x] == seq3[z]) or (seq2[y] == seq3[z])):
-                    score_matrix[z][y][x] = MATCH
-                else:
-                    score_matrix[z][y][x] = MISMATCH
-    return score_matrix
-
-
 def initialize_matrix(score_matrix, ls1, ls2, ls3):
     """fillst first row and column with
     given penalties
@@ -76,7 +48,7 @@ def initialize_matrix(score_matrix, ls1, ls2, ls3):
     return score_matrix
 
 
-def recalculate_scorematrix(score_matrix, ls1, ls2, ls3):
+def calculate_scorematrix(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
     """creates a scorematrix with help of the
     substitution matrix and rewards/ penalties
 
@@ -95,6 +67,11 @@ def recalculate_scorematrix(score_matrix, ls1, ls2, ls3):
         for y in range(ls2):
             for x in range(ls1):
                 coords = (x,y,z)
+                if ((seq1[x] == seq2[y]) or (seq1[x] == seq3[z]) or (seq2[y] == seq3[z])):
+                    match_value = MATCH
+                else:
+                    match_value = MISMATCH
+
                 # surfaces
                 if coords.count(0) == 1:
                     # front surface
@@ -301,17 +278,17 @@ def calc_similarity(alignment_output):
 
 def main():
     # change sequences below for your needs!
-    seq1 = ",AA,"
-    seq2 = ",AT,"
+    seq1 = ",AT,"
+    seq2 = ",AA,"
     seq3 = ",AA,"
 
     ls1 = len(seq1)
     ls2 = len(seq2)
     ls3 = len(seq3)
     score_matrix = np.zeros((ls3, ls2, ls1), dtype="int16")
-    score_matrix = fill_matches(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3)
     score_matrix = initialize_matrix(score_matrix, ls1, ls2, ls3)
-    score_matrix = recalculate_scorematrix(score_matrix, ls1, ls2, ls3)
+    score_matrix = calculate_scorematrix(
+        score_matrix, ls1, ls2, ls3, seq1, seq2, seq3)
     seq1_new, seq2_new, seq3_new = traceback(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3)
     alignment1_2, alignment1_3, alignment2_3 = output(
         seq1_new, seq2_new, seq3_new)

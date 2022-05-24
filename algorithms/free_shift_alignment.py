@@ -23,28 +23,7 @@ MISMATCH = -10
 GAP = -10
 
 
-def fill_matches(score_matrix, ls1, ls2, seq1, seq2):
-    """creates a substitution matrix.
-    Starts with second row and column.
-
-    Args:
-        score_matrix (np matrix): initialized matrix
-        ls1 (int): len first sequence to alignt
-        ls2 (int): len second sequence to alignt
-        seq1 (str): first sequence to alignt
-        seq2 (str): second sequence to alignt
-
-    Returns:
-        numpy matrix: substitution matrix inside
-    initialized matrix
-    """
-    for y in range(1, ls2):
-        for x in range(1, ls1):
-            score_matrix[y][x] = MATCH if seq1[x] == seq2[y] else MISMATCH
-    return score_matrix
-
-
-def recalculate_scorematrix(score_matrix, ls1, ls2):
+def calculate_scorematrix(score_matrix, ls1, ls2, seq1, seq2):
     """creates a scorematrix with help of the
     substitution matrix and rewards/ penalties
 
@@ -53,6 +32,8 @@ def recalculate_scorematrix(score_matrix, ls1, ls2):
         initialized matrix
         ls1 (int): len first sequence to alignt
         ls2 (int): len second sequence to alignt
+        seq1 (str): first sequence to alignt
+        seq2 (str): second sequence to alignt
 
     Returns:
         numpy matrix: scorematrix
@@ -60,8 +41,9 @@ def recalculate_scorematrix(score_matrix, ls1, ls2):
     # start at second row and column -> skips initialized cells
     for y in range(1, ls2):
         for x in range(1, ls1):
+            match_value = MATCH if seq1[x] == seq2[y] else MISMATCH
             score_matrix[y][x] = max(
-                score_matrix[y-1][x-1] + score_matrix[y][x],
+                score_matrix[y-1][x-1] + match_value,
                 score_matrix[y-1][x] + GAP,
                 score_matrix[y][x-1] + GAP
             )
@@ -239,8 +221,7 @@ def main(seq1='', seq2='', assembly=False):
     ls1 = len(seq1)
     ls2 = len(seq2)
     score_matrix = np.zeros((ls2, ls1), dtype="int16")
-    score_matrix = fill_matches(score_matrix, ls1, ls2, seq1, seq2)
-    score_matrix = recalculate_scorematrix(score_matrix, ls1, ls2)
+    score_matrix = calculate_scorematrix(score_matrix, ls1, ls2, seq1, seq2)
     max_border_coords = get_max_from_border(score_matrix)
     seq1_new, seq2_new = traceback(
         score_matrix, seq1, seq2, max_border_coords)
