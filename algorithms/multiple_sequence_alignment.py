@@ -116,7 +116,7 @@ def calculate_scorematrix(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
                 else:
                     score_matrix[z][y][x] = max(
                         # diagonal (3d movement)
-                        score_matrix[z-1][y-1][x-1] + score_matrix[z][y][x],
+                        score_matrix[z-1][y-1][x-1] + match_value,
                         # diagonal neighbors (2d movement)
                         score_matrix[z-1][y][x-1] + GAP,
                         score_matrix[z-1][y-1][x] + GAP,
