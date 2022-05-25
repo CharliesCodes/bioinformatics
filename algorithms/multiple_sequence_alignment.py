@@ -105,7 +105,7 @@ def calculate_scorematrix(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
                     elif z == x == 0:
                         score_matrix[z][y][x] = score_matrix[z][y-1][x] + 2*GAP
                     # top left border -> go to front
-                    elif z == x == 0:
+                    elif y == x == 0:
                         score_matrix[z][y][x] = score_matrix[z-1][y][x] + 2*GAP
 
                 # start corrdinates
@@ -121,7 +121,7 @@ def calculate_scorematrix(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
                         score_matrix[z-1][y][x-1] + GAP,
                         score_matrix[z-1][y-1][x] + GAP,
                         score_matrix[z][y-1][x-1] + GAP,
-                        # left faces (1d movement)
+                        # 1d movement
                         score_matrix[z][y][x-1] + 2*GAP,
                         score_matrix[z-1][y][x] + 2*GAP,
                         score_matrix[z][y-1][x] + 2*GAP,
@@ -278,9 +278,9 @@ def calc_similarity(alignment_output):
 
 def main():
     # change sequences below for your needs!
-    seq1 = ",AT,"
-    seq2 = ",AA,"
-    seq3 = ",AA,"
+    seq1 = ",ATTAG,"
+    seq2 = ",ATAG,"
+    seq3 = ",ATTAC,"
 
     ls1 = len(seq1)
     ls2 = len(seq2)
