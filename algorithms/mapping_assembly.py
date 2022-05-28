@@ -97,7 +97,7 @@ def mapping(seqparts, origin_len):
     seqparts = ["," + seq for seq in seqparts]
     # set longest (first) list element as main sequence and remove it from list
     main_seq = seqparts.pop(0)
-    while seqparts and len(main_seq) <= origin_len:
+    while seqparts and (len(main_seq) <= origin_len):
         fragments = []
         for parts_index, seq2 in enumerate(seqparts):
             # use imported smith-waterman algorithm without output function

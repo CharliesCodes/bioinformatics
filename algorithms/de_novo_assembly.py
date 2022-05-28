@@ -88,7 +88,7 @@ def mapping(seqparts):
     main_seq = seqparts.pop(0)
     # assembly start sequence
     print("Startsequence:", main_seq)
-    while seqparts and len(main_seq) <= ASSEMBLY_MAXLEN:
+    while seqparts and (len(main_seq) <= ASSEMBLY_MAXLEN):
         fragments = []
         for parts_index, seq2 in enumerate(seqparts):
             # use imported smith-waterman algorithm without output function
