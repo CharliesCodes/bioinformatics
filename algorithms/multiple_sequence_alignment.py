@@ -25,29 +25,6 @@ MISMATCH = -1
 GAP = -2
 
 
-def initialize_matrix(score_matrix, ls1, ls2, ls3):
-    """fillst first row and column with
-    given penalties
-
-    Args:
-        score_matrix (numpy matrix): 0 filled
-        ls1 (int): len first sequence to alignt
-        ls2 (int): len second sequence to alignt
-        ls3 (int): len third sequence to alignt
-
-    Returns:
-        numpy matrix: np matrix with initialized
-        first row and column
-    """
-    for x in range(ls1):
-        score_matrix[0][0][x] = x * 2*GAP
-    for y in range(ls2):
-        score_matrix[0][y][0] = y * 2*GAP
-    for z in range(ls3):
-        score_matrix[z][0][0] = z * 2*GAP
-    return score_matrix
-
-
 def calculate_scorematrix(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
     """creates a scorematrix with help of the
     substitution matrix and rewards/ penalties
@@ -96,7 +73,7 @@ def calculate_scorematrix(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
                             score_matrix[z][y-1][x] + 2*GAP
                         )
 
-                # border behaviour
+                # border behaviour / Initializing
                 elif coords.count(0) == 2:
                     # front top border -> go to left
                     if z == y == 0:
@@ -286,7 +263,6 @@ def main():
     ls2 = len(seq2)
     ls3 = len(seq3)
     score_matrix = np.zeros((ls3, ls2, ls1), dtype="int16")
-    score_matrix = initialize_matrix(score_matrix, ls1, ls2, ls3)
     score_matrix = calculate_scorematrix(
         score_matrix, ls1, ls2, ls3, seq1, seq2, seq3)
     seq1_new, seq2_new, seq3_new = traceback(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3)
