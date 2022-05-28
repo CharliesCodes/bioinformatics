@@ -19,6 +19,7 @@ import random
 
 try:
     import free_shift_alignment as fsa
+    import needleman_wunsch as nw
 except ImportError:
     print("Free-Shift Alignment not found!\nPlease copy file 'free_shift_alignment.py' into the same directory!\nVisit my GitHub page to download it.")
 
@@ -28,25 +29,25 @@ def generate_origin(origin_len=100):
     return origin, origin_len
 
 
-def cut_origin_to_seqparts(origin, minl, maxl, set_num=20):
+def cut_origin_to_seqparts(origin, MINLEN, MAXLEN, SET_NUM=20):
     """This func generates random sets of sequenceparts from origin
     and wraps them into one big, sorted list
 
     Args:
         origin (str): original sequence to cut
-        minl (int): min len for sequenceparts
-        maxl (int): max len for sequenceparts
-        set_num (int, optional): number of sets from original. Defaults to 10.
+        MINLEN (int): min len for sequenceparts
+        MAXLEN (int): max len for sequenceparts
+        SET_NUM (int, optional): number of sets from original. Defaults to 10.
 
     Returns:
         [list]: len decreasing sorted  list of substrings with random parts from origin
     """
     seqparts = []
-    for _ in range(set_num):
+    for _ in range(SET_NUM):
         x = 0
         while x < len(origin):
-            rand = random.randint(minl, maxl)
-            if (len(origin)-x) <= minl:
+            rand = random.randint(MINLEN, MAXLEN)
+            if (len(origin)-x) <= MINLEN:
                 seqparts.append(origin[x::])
             else:
                 seqparts.append(origin[x:x+rand])
@@ -117,17 +118,17 @@ def mapping(seqparts, origin_len):
 
 def main():
     origin, origin_len = generate_origin()
-    minl = round(0.05*origin_len)
-    maxl = round(0.20*origin_len)
-    set_num = 10
-    seqparts = cut_origin_to_seqparts(origin, minl, maxl, set_num)
+    MINLEN = round(0.05*origin_len)
+    MAXLEN = round(0.20*origin_len)
+    SET_NUM = 10
+    seqparts = cut_origin_to_seqparts(origin, MINLEN, MAXLEN, SET_NUM)
     seqparts = get_unique_seqparts(seqparts)
     assembly_sequence = mapping(seqparts, origin_len)
     origin = "," + origin +","
     assembly_sequence = assembly_sequence + ","
     print("Ursprungssequenz")
     print("Assemblierte Sequenz\n")
-    fsa.main(origin, assembly_sequence)
+    nw.main(origin, assembly_sequence)
 
 
 if __name__ == '__main__':
