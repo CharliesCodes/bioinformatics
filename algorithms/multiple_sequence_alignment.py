@@ -128,6 +128,61 @@ def traceback(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
     y = ls2-1
     z = ls3-1
 
+    def xyz_dia_f(x, y, z):
+            seq1_new.append(seq1[x-1])
+            seq2_new.append(seq2[y-1])
+            seq3_new.append(seq3[z-1])
+            x -= 1
+            y -= 1
+            z -= 1
+            return x, y, z
+
+    def yz_dia_f(y, z):
+        seq1_new.append("_")
+        seq2_new.append(seq2[y-1])
+        seq3_new.append(seq3[z-1])
+        y -= 1
+        z -= 1
+        return y, z
+
+    def xy_dia_f(x, y):
+        seq1_new.append(seq1[x-1])
+        seq2_new.append(seq2[y-1])
+        seq3_new.append("_")
+        x -= 1
+        y -= 1
+        return x, y
+
+    def xz_dia_f(x, z):
+        seq1_new.append(seq1[x-1])
+        seq2_new.append("_")
+        seq3_new.append(seq3[z-1])
+        x -= 1
+        z -= 1
+        return x, z
+
+    def front_f(z):
+        seq1_new.append("_")
+        seq2_new.append("_")
+        seq3_new.append(seq3[z-1])
+        z -= 1
+        return z
+
+    def up_f(y):
+        seq1_new.append("_")
+        seq2_new.append(seq2[y-1])
+        seq3_new.append("_")
+        y -= 1
+        return y
+
+    def left_f(x):
+        seq1_new.append(seq1[x-1])
+        seq2_new.append("_")
+        seq3_new.append("_")
+        x -= 1
+        return x
+
+    # inside Cube / all Movements
     while x > 0 and y > 0 and z > 0:
         # diagonal (3d movement)
         xyz_dia = score_matrix[z-1][y-1][x-1]
@@ -143,48 +198,77 @@ def traceback(score_matrix, ls1, ls2, ls3, seq1, seq2, seq3):
         max_points = max(xyz_dia, xz_dia, yz_dia, xy_dia, left, front, up)
 
         if xyz_dia == max_points:
-            seq1_new.append(seq1[x-1])
-            seq2_new.append(seq2[y-1])
-            seq3_new.append(seq3[z-1])
-            x -= 1
-            y -= 1
-            z -= 1
+            x, y, z = xyz_dia_f(x, y, z)
         elif yz_dia == max_points:
-            seq1_new.append("_")
-            seq2_new.append(seq2[y-1])
-            seq3_new.append(seq3[z-1])
-            y -= 1
-            z -= 1
+            y, z = yz_dia_f(y, z)
         elif xy_dia == max_points:
-            seq1_new.append(seq1[x-1])
-            seq2_new.append(seq2[y-1])
-            seq3_new.append("_")
-            x -= 1
-            y -= 1
+            x, y = xy_dia_f(x, y)
         elif xz_dia == max_points:
-            seq1_new.append(seq1[x-1])
-            seq2_new.append("_")
-            seq3_new.append(seq3[z-1])
-            x -= 1
-            z -= 1
-
+            x, z = xz_dia_f(x, z)
         elif front == max_points:
-            seq1_new.append("_")
-            seq2_new.append("_")
-            seq3_new.append(seq3[z-1])
-            z -= 1
-
+            z = front_f(z)
         elif up == max_points:
-            seq1_new.append("_")
-            seq2_new.append(seq2[y-1])
-            seq3_new.append("_")
-            y -= 1
-        # left
+            y = up_f(y)
         else:
-            seq1_new.append(seq1[x-1])
-            seq2_new.append("_")
-            seq3_new.append("_")
-            x -= 1
+            x= left_f(x)
+
+    # Borders
+    while (x, y, z).count(0) == 2:
+        while y > 0:
+            y = up_f(y)
+        while x > 0:
+            x = left_f(x)
+        while z > 0:
+            z = front_f(z)
+
+    # Surfaces
+    while (x, y, z).count(0) == 1:
+
+        # front Surface
+        while x > 0 and y > 0:
+            dia = score_matrix[z][y-1][x-1]
+            up = score_matrix[z][y-1][x]
+            left = score_matrix[z][y][x-1]
+            max_points = max(dia, up, left)
+
+            # dia
+            if dia == max_points:
+                x,y = xy_dia_f(x,y)
+            # up
+            elif up == max_points:
+                y = up_f(y)
+            # left
+            else:
+                x = left_f(x)
+
+        # top Surface
+        while x > 0 and z > 0:
+            dia = score_matrix[z-1][y][x-1]
+            front = score_matrix[z-1][y][x]
+            left = score_matrix[z][y][x-1]
+            max_points = max(dia, front, left)
+
+            if dia == max_points:
+                x,z = xz_dia_f(x,z)
+            elif front == max_points:
+                z = front_f(z)
+            else:
+                x = left_f(x)
+
+        # left Surface
+        while y > 0 and z > 0:
+            dia = score_matrix[z-1][y-1][x]
+            front = score_matrix[z-1][y][x]
+            top = score_matrix[z][y-1][x]
+            max_points = max(dia, front, top)
+
+            if dia == max_points:
+                y,z = yz_dia_f(y,z)
+            elif front == max_points:
+                z = front_f(z)
+            else:
+                y = up_f(y)
+
     return seq1_new, seq2_new, seq3_new
 
 
