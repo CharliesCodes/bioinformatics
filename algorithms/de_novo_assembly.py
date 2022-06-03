@@ -1,4 +1,3 @@
-
 # =============================================================================
 # Created By  : Dominique Zeise
 # GitHub      : https://github.com/CharliesCodes
@@ -6,13 +5,13 @@
 # Version     : 1.0
 # © Copyright : 2021 Dominique Zeise
 # =============================================================================
-'''De novo Assembly
+"""De novo Assembly
 
 
 This module uses dynamic programming to create a
 de novo transcriptome without a reference genome.
 
-Dependencies: Free-Shift Alignment Module'''
+Dependencies: Free-Shift Alignment Module"""
 # =============================================================================
 
 import random
@@ -20,7 +19,9 @@ import random
 try:
     import free_shift_alignment as fsa
 except ImportError:
-    print("Free-Shift Alignment not found!\nPlease copy file 'free_shift_alignment.py' into the same directory!\nVisit my GitHub page to download it.")
+    print(
+        "Free-Shift Alignment not found!\nPlease copy file 'free_shift_alignment.py' into the same directory!\nVisit my GitHub page to download it."
+    )
 
 
 MINLEN = 5
@@ -39,8 +40,7 @@ def create_seqparts():
     seqparts = []
     for _ in range(SUBSEQ_NUM):
         rand = random.randint(MINLEN, MAXLEN)
-        subseq = ''.join(random.choice(
-            ["A", "T", "C", "G"]) for x in range(rand))
+        subseq = "".join(random.choice(["A", "T", "C", "G"]) for x in range(rand))
         seqparts.append(subseq)
     # sorting not needed - just for the sake of clarity
     seqparts.sort(key=len)
@@ -93,11 +93,10 @@ def mapping(seqparts):
         for parts_index, seq2 in enumerate(seqparts):
             # use imported smith-waterman algorithm without output function
             sim_tup, main_seq_new = fsa.main(main_seq, seq2, True)
-            if 0.9*len(seq2) >= sim_tup[0] > 0.2*len(seq2):
+            if 0.9 * len(seq2) >= sim_tup[0] > 0.2 * len(seq2):
                 fragments.append((sim_tup[0], main_seq_new, parts_index))
         if fragments:
-            sorted_frags = sorted(
-                fragments, key=lambda tup: tup[0], reverse=True)
+            sorted_frags = sorted(fragments, key=lambda tup: tup[0], reverse=True)
             main_seq = sorted_frags[0][1]
             main_seq = "," + main_seq
         try:
@@ -116,5 +115,5 @@ def main():
     print(assembly_sequence)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

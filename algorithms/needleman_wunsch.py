@@ -1,4 +1,3 @@
-
 # =============================================================================
 # Created By  : Dominique Zeise
 # GitHub      : https://github.com/CharliesCodes
@@ -64,10 +63,10 @@ def calculate_scorematrix(score_matrix, ls1, ls2, seq1, seq2):
         for x in range(1, ls1):
             match_value = MATCH if seq1[x] == seq2[y] else MISMATCH
             score_matrix[y][x] = max(
-                score_matrix[y-1][x-1] + match_value,
-                score_matrix[y-1][x] + GAP,
-                score_matrix[y][x-1] + GAP
-                )
+                score_matrix[y - 1][x - 1] + match_value,
+                score_matrix[y - 1][x] + GAP,
+                score_matrix[y][x - 1] + GAP,
+            )
     return score_matrix
 
 
@@ -88,39 +87,39 @@ def traceback(score_matrix, ls1, ls2, seq1, seq2):
         seq2_new (str): redesigned second sequence
     """
     seq1_new, seq2_new = [], []
-    x = ls1-1
-    y = ls2-1
-    while x>0 and y>0:
-        dia = score_matrix[y-1][x-1]
-        up = score_matrix[y-1][x]
-        left = score_matrix[y][x-1]
+    x = ls1 - 1
+    y = ls2 - 1
+    while x > 0 and y > 0:
+        dia = score_matrix[y - 1][x - 1]
+        up = score_matrix[y - 1][x]
+        left = score_matrix[y][x - 1]
         max_points = max(dia, up, left)
 
         # dia
         if dia == max_points:
-            seq1_new.append(seq1[x-1])
-            seq2_new.append(seq2[y-1])
+            seq1_new.append(seq1[x - 1])
+            seq2_new.append(seq2[y - 1])
             x -= 1
             y -= 1
         # up
         elif up == max_points:
             seq1_new.append("_")
-            seq2_new.append(seq2[y-1])
+            seq2_new.append(seq2[y - 1])
             y -= 1
         # left
         else:
             seq2_new.append("_")
-            seq1_new.append(seq1[x-1])
+            seq1_new.append(seq1[x - 1])
             x -= 1
     # left border
     while y > 0:
         seq1_new.append("_")
-        seq2_new.append(seq2[y-1])
+        seq2_new.append(seq2[y - 1])
         y -= 1
     # top border
     while x > 0:
         seq2_new.append("_")
-        seq1_new.append(seq1[x-1])
+        seq1_new.append(seq1[x - 1])
         x -= 1
     return seq1_new, seq2_new
 
@@ -140,9 +139,9 @@ def output(seq1_new, seq2_new):
     alignment = []
     for n1, n2 in zip(seq1_new, seq2_new):
         alignment.append("|") if n1 == n2 else alignment.append("*")
-    seq1_output = ''.join(seq1_new[:-1])[::-1]
-    seq2_output = ''.join(seq2_new[:-1])[::-1]
-    alignment_output = ''.join(alignment[:-1])[::-1]
+    seq1_output = "".join(seq1_new[:-1])[::-1]
+    seq2_output = "".join(seq2_new[:-1])[::-1]
+    alignment_output = "".join(alignment[:-1])[::-1]
 
     print(seq1_output)
     print(alignment_output)
@@ -163,11 +162,11 @@ def calc_similarity(alignment_output):
         tuple: absolute & relative match frequency
     """
     abs_count = alignment_output.count("|")
-    rel_count = abs_count/len(alignment_output)
+    rel_count = abs_count / len(alignment_output)
     return (abs_count, rel_count)
 
 
-def main(seq1='', seq2=''):
+def main(seq1="", seq2=""):
     # change sequences below for your needs!
     if not (seq1 or seq2):
         seq1 = ",AATGC,"
@@ -183,5 +182,5 @@ def main(seq1='', seq2=''):
     print(f"\nSimilarity: {round(sim_tup[1]*100, 2)}%")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

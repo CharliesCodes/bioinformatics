@@ -1,4 +1,3 @@
-
 # =============================================================================
 # Created By  : Dominique Zeise
 # GitHub      : https://github.com/CharliesCodes
@@ -6,13 +5,13 @@
 # Version     : 1.0
 # © Copyright : 2021 Dominique Zeise
 # =============================================================================
-'''Mapping Assembly
+"""Mapping Assembly
 
 
 This module uses dynamic programming to restore an
 origin-sequence from sequenceparts.
 
-Dependencies: Free-Shift Alignment Module'''
+Dependencies: Free-Shift Alignment Module"""
 # =============================================================================
 
 import random
@@ -21,11 +20,13 @@ try:
     import free_shift_alignment as fsa
     import needleman_wunsch as nw
 except ImportError:
-    print("Free-Shift Alignment not found!\nPlease copy file 'free_shift_alignment.py' into the same directory!\nVisit my GitHub page to download it.")
+    print(
+        "Free-Shift Alignment not found!\nPlease copy file 'free_shift_alignment.py' into the same directory!\nVisit my GitHub page to download it."
+    )
 
 
 def generate_origin(origin_len=100):
-    origin = ''.join(random.choice(["A", "T", "C", "G"]) for x in range(origin_len))
+    origin = "".join(random.choice(["A", "T", "C", "G"]) for x in range(origin_len))
     return origin, origin_len
 
 
@@ -47,10 +48,10 @@ def cut_origin_to_seqparts(origin, MINLEN, MAXLEN, SET_NUM=20):
         x = 0
         while x < len(origin):
             rand = random.randint(MINLEN, MAXLEN)
-            if (len(origin)-x) <= MINLEN:
+            if (len(origin) - x) <= MINLEN:
                 seqparts.append(origin[x::])
             else:
-                seqparts.append(origin[x:x+rand])
+                seqparts.append(origin[x : x + rand])
             x += rand
     # sorting not needed - just for the sake of clarity
     seqparts.sort(key=len)
@@ -102,11 +103,10 @@ def mapping(seqparts, origin_len):
         for parts_index, seq2 in enumerate(seqparts):
             # use imported smith-waterman algorithm without output function
             sim_tup, main_seq_new = fsa.main(main_seq, seq2, True)
-            if 0.9*len(seq2) >= sim_tup[0] > 0.2*len(seq2):
+            if 0.9 * len(seq2) >= sim_tup[0] > 0.2 * len(seq2):
                 fragments.append((sim_tup[0], main_seq_new, parts_index))
         if fragments:
-            sorted_frags = sorted(
-                fragments, key=lambda tup: tup[0], reverse=True)
+            sorted_frags = sorted(fragments, key=lambda tup: tup[0], reverse=True)
             main_seq = sorted_frags[0][1]
             main_seq = "," + main_seq
         try:
@@ -118,18 +118,18 @@ def mapping(seqparts, origin_len):
 
 def main():
     origin, origin_len = generate_origin()
-    MINLEN = round(0.05*origin_len)
-    MAXLEN = round(0.20*origin_len)
+    MINLEN = round(0.05 * origin_len)
+    MAXLEN = round(0.20 * origin_len)
     SET_NUM = 10
     seqparts = cut_origin_to_seqparts(origin, MINLEN, MAXLEN, SET_NUM)
     seqparts = get_unique_seqparts(seqparts)
     assembly_sequence = mapping(seqparts, origin_len)
-    origin = "," + origin +","
+    origin = "," + origin + ","
     assembly_sequence = assembly_sequence + ","
     print("Ursprungssequenz")
     print("Assemblierte Sequenz\n")
     nw.main(origin, assembly_sequence)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
