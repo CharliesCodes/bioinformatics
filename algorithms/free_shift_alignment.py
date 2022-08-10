@@ -90,7 +90,7 @@ def traceback(score_matrix, seq1, seq2, max_border_coords):
         seq2_new (str): redesigned second sequence
     """
     seq1_new, seq2_new = [], []
-    y, x = max_border_coords[0], max_border_coords[1]
+    y, x = max_border_coords
     seq1_new.append(seq1[x])
     seq2_new.append(seq2[y])
 
