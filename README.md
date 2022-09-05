@@ -8,7 +8,7 @@
 
 Dies is das Repo meines <a href="https://www.udemy.com/course/bioinformatik-sequenzanalyse/?referralCode=5DC0BAD516F5DE224232" target="_blank">Udemy Kurses</a>.<br>
 Hier findest du alle möglichen Algorithmen der Bioinformatik-Grundlagen.<br>
-Wenn du die Theorie hinter diesen Programmen verstehen willst, dann <a href="https://www.zeise-coding.de/kurse/" target="_blank">schau dir meine Kurse an</a>.<br>
+Wenn du die Theorie hinter diesen Programmen verstehen willst, <a href="https://www.zeise-coding.de/kurse/" target="_blank">schau dir meine Kurse an</a>.<br>
 <a href="https://www.zeise-coding.de/" target="_blank">Auf meiner Website</a> findest du alle Kurse und bekommst häufig Rabatt!
 
 
