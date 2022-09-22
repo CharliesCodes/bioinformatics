@@ -1,29 +1,30 @@
-*Read this in: [English](README.en.md)*
+*Read this in: [German](README.md)*
 <br>
 <a href="https://www.zeise-coding.de/" target="_blank">
   <img align="right" src="https://github.com/CharliesCodes/CharliesCodes/blob/main/png/Logo_ZC_final_hellblau.png" alt="drawing" width="200"/>
 </a>
-# Bioinformatik Sequenzanalyse
-## Alignment Algorithmen mit Python
+# Bioinformatics Sequence Analysis
+## Alignment algorithms with Python
 
-Dies is das Repo meines <a href="https://www.udemy.com/course/bioinformatik-sequenzanalyse/?referralCode=5DC0BAD516F5DE224232" target="_blank">Udemy Kurses</a>.<br>
-Hier findest du alle möglichen Algorithmen der Bioinformatik-Grundlagen.<br>
-Wenn du die Theorie hinter diesen Programmen verstehen willst, <a href="https://www.zeise-coding.de/kurse/" target="_blank">schau dir meine Kurse an</a>.<br>
-<a href="https://www.zeise-coding.de/" target="_blank">Auf meiner Website</a> findest du alle Kurse und bekommst häufig Rabatt!
+This is the repo of my <a href="https://www.udemy.com/course/bioinformatik-sequenzanalyse/?referralCode=5DC0BAD516F5DE224232" target="_blank">Udemy course</a>. *Currently only available in German*<br>
+Here you can find all kinds of algorithms of bioinformatics basics.<br>
+If you want to understand the theory behind these programs, <a href="https://www.zeise-coding.de/kurse/" target="_blank">check out my courses</a>.<br>
+<a href="https://www.zeise-coding.de/" target="_blank">On my website</a> you can find all courses and often get discounts!
 
 
 ## Features
 
-- Globale Alignments
-  - Needleman-Wunsch-Algorithmus
-  - Freeshift Alignment / Semiglobales Alignment / End-Gap Free Alignment
+- Global Alignments
+  - Needleman-Wunsch algorithm
+  - Free Alignment / Semiglobal Alignment / End-Gap Free Alignment
 
-- Lokale Alignments
-  - Smith-Waterman-Algorithmus
-- Multiple Sequenz Alignments
-- Assemblierungs-Algorithmen
-  - De novo Assembly
-  - Mapping Assembly
+- Local Alignments
+  - Smith-Waterman Algorithm
+- Multiple Sequence Alignments
+- Assembly Algorithms
+  - De novo assembly
+  - Mapping assembly
+
 ## Demo
 
 
