@@ -47,18 +47,13 @@ Here are some related projects
     <a href="https://www.udemy.com/user/dominique-zeise-2/">
       <img src="https://img.shields.io/badge/Udemy-A435F0?style=for-the-badge&logo=Udemy&logoColor=white" alt="Udemy Badge"/>
     </a>
-    <a href="https://www.linkedin.com/company/zeise-coding/">
-      <img src="https://img.shields.io/badge/LinkedIn-45A29E?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn Badge"/>
-    </a>
     <a href="https://www.linkedin.com/in/dominique-zeise/">
       <img src="https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn Badge"/>
     </a>
-    <a href="https://www.zeise-coding.de/">
+    <a href="https://zeise-coding.de/">
       <img src="https://img.shields.io/badge/-Zeise%20Coding-45A29E?style=for-the-badge" alt="Zeise Coding Blog"/>
     </a>
   </div>
-  <br>
-  <a href="https://www.buymeacoffee.com/zeisecoding" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
   </div>
 
 
